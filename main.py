@@ -11,7 +11,7 @@ def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted):
     tasks = range(1, num_tasks_to_run + 1)
     plt.plot(tasks, baseline_mlp[::-1])
     plt.plot(tasks, memoryadaoted[::-1])
-    plt.legend(["Baseline-MLP", "RMA"], loc="low right")
+    plt.legend(["Baseline-MLP", "RMA"], loc="lower right")
     plt.xlabel("Number of Tasks")
     plt.ylabel("Accuracy (%)")
     plt.ylim([1, 100])
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--num-tasks-to-run", type=int, default=20,
                         help="Number of task to run")
-    parser.add_argument("--memory-size", type=int, default=15000,
+    parser.add_argument("--memory-size", type=int, default=150000,
                         help="Memory size")
     parser.add_argument("--memory-each", type=int, default=1000,
                         help="Add to memory after these number of steps")
