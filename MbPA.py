@@ -65,8 +65,8 @@ class MbPA:
         return x, y
 
     def add_to_memory(self, xs, ys):
-        # self.M.add(xs, ys)
-        self.M.ran_add(xs, ys)
+        self.M.add(xs, ys)
+        # self.M.ran_add(xs, ys)
 
     @staticmethod
     def network(x):
