@@ -5,34 +5,35 @@ from ops import conv2d, linear
 class MbPA:
 
     def __init__(self, sess, args):
-        self.learning_rate = args.learning_rate
-        self.session = sess
+        with tf.variable_scope(args.name):
+            self.learning_rate = args.learning_rate
+            self.session = sess
 
-        self.x = tf.placeholder(tf.float32, shape=[None, 784], name="x")
-        self.y = tf.placeholder(tf.float32, shape=[None, 10], name="y")
-        self.trainable = tf.placeholder(tf.int32, shape=(), name="trainable")
-        self.memory_sample_batch = tf.placeholder(tf.int16, shape=(), name="memory_sample_batch")
+            self.x = tf.placeholder(tf.float32, shape=[None, 784], name="x")
+            self.y = tf.placeholder(tf.float32, shape=[None, 10], name="y")
+            self.trainable = tf.placeholder(tf.int32, shape=(), name="trainable")
+            self.memory_sample_batch = tf.placeholder(tf.int16, shape=(), name="memory_sample_batch")
 
-        self.embed = self.embedding(self.x, self.trainable)
+            self.embed = self.embedding(self.x, self.trainable)
 
-        self.M = Memory(args.memory_size, self.embed.get_shape()[-1], self.y.get_shape()[-1])
-        embs_and_values = tf.py_func(self.get_memory_sample, [self.memory_sample_batch],
-                                     [tf.float64, tf.float64])
+            self.M = Memory(args.memory_size, self.embed.get_shape()[-1], self.y.get_shape()[-1])
+            embs_and_values = tf.py_func(self.get_memory_sample, [self.memory_sample_batch],
+                                         [tf.float64, tf.float64])
 
-        self.memory_batch_x = tf.to_float(embs_and_values[0])
-        self.memory_batch_y = tf.to_float(embs_and_values[1])
-        self.xa = tf.concat(values=[self.embed, self.memory_batch_x], axis=0)
-        self.ya = tf.concat(values=[self.y, self.memory_batch_y], axis=0)
+            self.memory_batch_x = tf.to_float(embs_and_values[0])
+            self.memory_batch_y = tf.to_float(embs_and_values[1])
+            self.xa = tf.concat(values=[self.embed, self.memory_batch_x], axis=0)
+            self.ya = tf.concat(values=[self.y, self.memory_batch_y], axis=0)
 
-        self.y_ = self.output_network(self.xa)
+            self.y_ = self.output_network(self.xa)
 
-        self.cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.ya,
-                                                                                    logits=self.y_))
-        self.optim = tf.train.GradientDescentOptimizer(self.learning_rate).minimize(self.cross_entropy)
-        self.correct_prediction = tf.equal(tf.argmax(self.ya, 1), tf.argmax(self.y_, 1))
-        self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, tf.float32))
+            self.cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.ya,
+                                                                                        logits=self.y_))
+            self.optim = tf.train.GradientDescentOptimizer(self.learning_rate).minimize(self.cross_entropy)
+            self.correct_prediction = tf.equal(tf.argmax(self.ya, 1), tf.argmax(self.y_, 1))
+            self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, tf.float32))
 
-        self.session.run(tf.global_variables_initializer())
+            self.session.run(tf.global_variables_initializer())
 
     def train(self, xs, ys, memory_sample_batch):
         # print(memory_sample_batch)
@@ -56,6 +57,7 @@ class MbPA:
             }
         )
         return acc
+
     def get_memory_sample(self, batch_size):
         x, y = self.M.sample(batch_size)
         # print("x, y")
@@ -64,6 +66,7 @@ class MbPA:
 
     def add_to_memory(self, xs, ys):
         self.M.add(xs, ys)
+        self.M.ran_add(xs, ys)
 
     @staticmethod
     def network(x):

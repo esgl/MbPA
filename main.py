@@ -23,8 +23,9 @@ def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted):
 def main(_):
     with tf.Session() as sess:
         print("\nParamters used: ", args, "\n")
-
-        # baseline_model = MbPA(sess, args)
+        args.name = "mlp"
+        baseline_model = MbPA(sess, args)
+        args.name = "mbpa"
         mbpa_model = MbPA(sess, args)
         mnist = input_data.read_data_sets("mnist/", one_hot=True)
 
@@ -32,12 +33,12 @@ def main(_):
         for task in range(args.num_tasks_to_run):
             task_permutation.append(np.random.permutation(784))
 
-        # print("\nBaseline MLP training...\n")
-        # start = time.time()
-        # performance_baseline = training(baseline_model, mnist, task_permutation, False)
-        # end = time.time()
-        # time_needed_baseline = round(end - start)
-        # print("Training time elapased: ", time_needed_baseline, "s")
+        print("\nBaseline MLP training...\n")
+        start = time.time()
+        performance_baseline = training(baseline_model, mnist, task_permutation, False)
+        end = time.time()
+        time_needed_baseline = round(end - start)
+        print("Training time elapased: ", time_needed_baseline, "s")
 
         print("\nMemory-based parameter Adaptation....\n")
         start = time.time()
@@ -46,7 +47,7 @@ def main(_):
         time_needed_baseline = round(end - start)
         print("Training time elapased: ", time_needed_baseline, "s")
 
-        # plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance)
+        plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance)
 
 
 def training(model, mnist, task_permutation, use_memory=False):
@@ -74,6 +75,7 @@ def training(model, mnist, task_permutation, use_memory=False):
             if args.num_tasks_to_run == task + 1:
                 last_performance.append(acc)
             print("Testing, task: ", test_task + 1, " \tAccuracy: ", acc)
+
     return last_performance
 
 if __name__ == "__main__":
