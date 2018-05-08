@@ -54,7 +54,7 @@ def training(model, mnist, task_permutation, use_memory=False):
     for task in range(args.num_tasks_to_run):
         print("\nTraining task:", task + 1, "/", args.num_tasks_to_run)
 
-        for i in tqdm(range(100000)):
+        for i in tqdm(range(10000)):
             batch = mnist.train.next_batch(args.batch_size)
             batch = (batch[0][:, task_permutation[task]], batch[1])
             if use_memory:

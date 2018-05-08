@@ -10,17 +10,16 @@ class MbPA:
 
         self.x = tf.placeholder(tf.float32, shape=[None, 784], name="x")
         self.y = tf.placeholder(tf.float32, shape=[None, 10], name="y")
-        # self.trainable = tf.placeholder(tf.int32, shape=(), name="trainable")
+        self.trainable = tf.placeholder(tf.int32, shape=(), name="trainable")
         self.memory_sample_batch = tf.placeholder(tf.int16, shape=(), name="memory_sample_batch")
 
-        self.embed = self.embedding(self.x)
-        # print("self.embed:", self.embed.get_shape().as_list())
+        self.embed = self.embedding(self.x, self.trainable)
+
         self.M = Memory(args.memory_size, self.embed.get_shape()[-1], self.y.get_shape()[-1])
         embs_and_values = tf.py_func(self.get_memory_sample, [self.memory_sample_batch],
                                      [tf.float64, tf.float64])
-        # print(embs_and_values)
+
         self.memory_batch_x = tf.to_float(embs_and_values[0])
-        # print("self.memory_batch_x", self.memory_batch_x.get_shape())
         self.memory_batch_y = tf.to_float(embs_and_values[1])
         self.xa = tf.concat(values=[self.embed, self.memory_batch_x], axis=0)
         self.ya = tf.concat(values=[self.y, self.memory_batch_y], axis=0)
@@ -41,7 +40,8 @@ class MbPA:
                          feed_dict={
                              self.x: xs,
                              self.y: ys,
-                             self.memory_sample_batch: memory_sample_batch
+                             self.memory_sample_batch: memory_sample_batch,
+                             self.trainable: 1
                          })
         return embeds
 
@@ -51,7 +51,8 @@ class MbPA:
             feed_dict={
                 self.x: xs_test,
                 self.y : ys_test,
-                self.memory_sample_batch: 0
+                self.memory_sample_batch: 0,
+                self.trainable : 0
             }
         )
         return acc
@@ -67,42 +68,60 @@ class MbPA:
     @staticmethod
     def network(x):
         out = tf.reshape(x, [-1, 28, 28, 1])
-        # with tf.variable_scope("convs"):
-        #     out = layers.convolution2d(inputs=out,
-        #                                num_outputs=16,
-        #                                kernel_size=8,
-        #                                stride=4,
-        #                                activation_fn=tf.nn.relu)
-        #     out = layers.convolution2d(inputs=out,
-        #                                num_outputs=32,
-        #                                kernel_size=4,
-        #                                stride=2,
-        #                                activation_fn=tf.nn.relu
-        #                                )
-        # out = layers.flatten(out)
-        # with tf.variable_scope("full_connected"):
-        #     out = layers.fully_connected(inputs=out,
-        #                                  num_outputs=10,
-        #                                  )
+        with tf.variable_scope("convs"):
+            out = layers.convolution2d(inputs=out,
+                                       num_outputs=16,
+                                       kernel_size=8,
+                                       stride=4,
+                                       activation_fn=tf.nn.relu)
+            out = layers.convolution2d(inputs=out,
+                                       num_outputs=32,
+                                       kernel_size=4,
+                                       stride=2,
+                                       activation_fn=tf.nn.relu
+                                       )
+        out = layers.flatten(out)
+        with tf.variable_scope("full_connected"):
+            out = layers.fully_connected(inputs=out,
+                                         num_outputs=10,
+                                         )
         return out
 
     @staticmethod
-    def embedding(x):
+    def embedding(x, trainable):
+        if trainable == 1:
+            trainable = True
+        else:
+            trainable = False
         out = tf.reshape(x, [-1, 28, 28, 1])
         convs = [(16, 8, 4), (32, 4, 2)]
-        with tf.variable_scope("embedding"):
-            out, _, _ = conv2d(x=out,
-                               output_dim=16,
-                               kernel_size=[8, 8],
-                               stride=[4, 4],
-                               name="conv2d_1")
+        with tf.variable_scope("conv1"):
+            # out, _, _ = conv2d(x=out,
+            #                    output_dim=16,
+            #                    kernel_size=[8, 8],
+            #                    stride=[4, 4],
+            #                    name="conv2d_1")
+            # out = tf.nn.relu(out)
+            # out, _, _ = conv2d(x=out,
+            #                    output_dim=32,
+            #                    kernel_size=[4, 4],
+            #                    stride=[2, 2],
+            #                    name="conv2d_2")
+            # out = tf.nn.relu(out)
+            out = layers.convolution2d(inputs=out,
+                                       num_outputs=16,
+                                       kernel_size=8,
+                                       stride=4,
+                                       trainable=trainable)
             out = tf.nn.relu(out)
-            out, _, _ = conv2d(x=out,
-                               output_dim=32,
-                               kernel_size=[4, 4],
-                               stride=[2, 2],
-                               name="conv2d_2")
+        with tf.variable_scope("conv2"):
+            out = layers.convolution2d(inputs=out,
+                                       num_outputs=32,
+                                       kernel_size=4,
+                                       stride=2,
+                                       trainable=trainable)
             out = tf.nn.relu(out)
+
             embed = layers.flatten(out)
         return embed
 
