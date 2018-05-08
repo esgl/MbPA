@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.contrib import layers
-from memory import Memory
+from memory.memory import Memory
 from ops import conv2d, linear
 class MbPA:
 
