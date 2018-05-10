@@ -22,12 +22,14 @@ class Memory:
         self.build_capacity = 0
 
     def sample_knn(self, states, k):
+        dists = []
         inds = []
         for state in states:
-            ind, _ = self.index.get_nns_by_vector(state, k)
+            ind, dist = self.index.get_nns_by_vector(state, k, include_distances=True)
             inds.append(ind)
+            dists.append(dist)
         inds = np.reshape(np.array(inds), -1)
-        return self.states[inds], self.values[inds]
+        return self.states[inds], self.values[inds], dists
 
 
     def sample(self, n_samples):

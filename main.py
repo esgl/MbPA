@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from MbPA import MbPA
+from MbPA_knn import MbPA_KNN
 import time
 from tqdm import tqdm
 import logging
@@ -28,9 +29,11 @@ def main(_):
         logger.info("\nParamters used: {}\n".format(args))
 
         args.name = "mlp"
-        baseline_model = MbPA(sess, args)
+        # baseline_model = MbPA(sess, args)
+        baseline_model = MbPA_KNN(sess, args)
         args.name = "mbpa"
-        mbpa_model = MbPA(sess, args)
+        # mbpa_model = MbPA(sess, args)
+        mbpa_model = MbPA_KNN(sess, args)
         mnist = input_data.read_data_sets("mnist/", one_hot=True)
 
         task_permutation = []
@@ -40,7 +43,8 @@ def main(_):
         # print("\nBaseline MLP training...\n")
         logger.info("\nBaseline MLP training...\n")
         start = time.time()
-        performance_baseline = training(baseline_model, mnist, task_permutation, False)
+        # performance_baseline = training(baseline_model, mnist, task_permutation, False)
+        performance_baseline = training_knn(baseline_model, mnist, task_permutation, False)
         end = time.time()
         time_needed_baseline = round(end - start)
         # print("Training time elapased: ", time_needed_baseline, "s")
@@ -49,13 +53,42 @@ def main(_):
         # print("\nMemory-based parameter Adaptation....\n")
         logger.info("\nMemory-based parameter Adaptation....\n")
         start = time.time()
-        mbpa_performance = training(mbpa_model, mnist, task_permutation, True)
+        # mbpa_performance = training(mbpa_model, mnist, task_permutation, True)
+        mbpa_performance = training_knn(mbpa_model, mnist, task_permutation, True)
         end = time.time()
         time_needed_baseline = round(end - start)
         # print("Training time elapased: ", time_needed_baseline, "s")
         logger.info("Training time elapased: {}s".format(time_needed_baseline))
         plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance)
 
+def training_knn(model, mnist, task_permutation, use_memory=False):
+    last_performance = []
+    for task in range(args.num_tasks_to_run):
+        logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
+        for i in tqdm(range(10000)):
+            batch = mnist.train.next_batch(args.batch_size)
+            batch = (batch[0][:, task_permutation[task]], batch[1])
+            if use_memory:
+                embeddings = model.train(batch[0], batch[1])
+                if i % args.memory_each == 0:
+                    model.add_to_memory(embeddings, batch[1])
+            else:
+                model.train(batch[0], batch[1])
+        acc = model.test(batch[0], batch[1])
+        acc = acc * 100
+        logger.info("training Accuracy: {}".format(acc))
+        for test_task in range(task + 1):
+            test_images = mnist.test.images
+
+            test_images = test_images[:, task_permutation[test_task]]
+            acc = model.test(test_images, mnist.test.labels)
+            acc = acc * 100
+            if args.num_tasks_to_run == task + 1:
+                last_performance.append(acc)
+            # print("Testing, task: ", test_task + 1, " \tAccuracy: ", acc)
+            logger.info("Testing, task: {}\tAccuracy: {}".format(test_task + 1, acc))
+
+    return last_performance
 
 def training(model, mnist, task_permutation, use_memory=False):
     last_performance = []
@@ -87,9 +120,8 @@ def training(model, mnist, task_permutation, use_memory=False):
     return last_performance
 
 if __name__ == "__main__":
-   
-    args = set_args()
 
+    args = set_args()
     logger = logging.getLogger(__name__)
     logger.setLevel(level=logging.INFO)
     handler = logging.FileHandler(args.log, mode="w")

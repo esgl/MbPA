@@ -61,8 +61,6 @@ class MbPA:
 
     def get_memory_sample(self, batch_size):
         x, y = self.M.sample(batch_size)
-        # print("x, y")
-        # print(x, y)
         return x, y
 
     def add_to_memory(self, xs, ys):
@@ -71,7 +69,6 @@ class MbPA:
         elif self.args.sample_add == "lru":
             self.M.add_lru(xs, ys)
         elif self.args.sample_add == "rand":
-        # self.M.ran_add(xs, ys)
             self.M.add_rand(xs, ys)
         elif self.args.sample_add == "knn":
             self.M.add_knn(xs, ys)
@@ -109,26 +106,15 @@ class MbPA:
         else:
             trainable = False
         out = tf.reshape(x, [-1, 28, 28, 1])
-        convs = [(16, 8, 4), (32, 4, 2)]
+        # convs = [(16, 8, 4), (32, 4, 2)]
         with tf.variable_scope("conv1"):
-            # out, _, _ = conv2d(x=out,
-            #                    output_dim=16,
-            #                    kernel_size=[8, 8],
-            #                    stride=[4, 4],
-            #                    name="conv2d_1")
-            # out = tf.nn.relu(out)
-            # out, _, _ = conv2d(x=out,
-            #                    output_dim=32,
-            #                    kernel_size=[4, 4],
-            #                    stride=[2, 2],
-            #                    name="conv2d_2")
-            # out = tf.nn.relu(out)
             out = layers.convolution2d(inputs=out,
                                        num_outputs=16,
                                        kernel_size=8,
                                        stride=4,
                                        trainable=trainable)
             out = tf.nn.relu(out)
+            out = tf.nn.max_pool(out, ksize=[1, 2, 3, 1], strides=[1, 2, 2, 1], padding="SAME")
         with tf.variable_scope("conv2"):
             out = layers.convolution2d(inputs=out,
                                        num_outputs=32,
@@ -136,15 +122,24 @@ class MbPA:
                                        stride=2,
                                        trainable=trainable)
             out = tf.nn.relu(out)
-
+            out = tf.nn.max_pool(out, ksize=[1, 2, 3, 1], strides=[1, 2, 2, 1], padding="SAME")
             embed = layers.flatten(out)
         return embed
 
     @staticmethod
     def output_network(embed):
         out = embed
-        out, _, _ = linear(out,
-                     output_size=10)
+        with tf.variable_scope("fc_1"):
+            out = layers.fully_connected(
+                inputs=out,
+                num_outputs=1024
+            )
+            out = tf.nn.relu(out)
+        with tf.variable_scope("fc_2"):
+            out = layers.fully_connected(
+                inputs=out,
+                num_outputs=10
+            )
         return out
 
 
