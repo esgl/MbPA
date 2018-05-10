@@ -6,6 +6,7 @@ from MbPA import MbPA
 import time
 from tqdm import tqdm
 import logging
+from args import set_args
 
 def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted):
     import matplotlib.pyplot as plt
@@ -23,7 +24,7 @@ def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted):
 
 def main(_):
     with tf.Session() as sess:
-        print("\nParamters used: ", args, "\n")
+        # print("\nParamters used: ", args, "\n")
         logger.info("\nParamters used: {}\n".format(args))
 
         args.name = "mlp"
@@ -36,22 +37,22 @@ def main(_):
         for task in range(args.num_tasks_to_run):
             task_permutation.append(np.random.permutation(784))
 
-        print("\nBaseline MLP training...\n")
+        # print("\nBaseline MLP training...\n")
         logger.info("\nBaseline MLP training...\n")
         start = time.time()
         performance_baseline = training(baseline_model, mnist, task_permutation, False)
         end = time.time()
         time_needed_baseline = round(end - start)
-        print("Training time elapased: ", time_needed_baseline, "s")
+        # print("Training time elapased: ", time_needed_baseline, "s")
         logger.info("Training time elapased: {}s".format(time_needed_baseline))
 
-        print("\nMemory-based parameter Adaptation....\n")
+        # print("\nMemory-based parameter Adaptation....\n")
         logger.info("\nMemory-based parameter Adaptation....\n")
         start = time.time()
         mbpa_performance = training(mbpa_model, mnist, task_permutation, True)
         end = time.time()
         time_needed_baseline = round(end - start)
-        print("Training time elapased: ", time_needed_baseline, "s")
+        # print("Training time elapased: ", time_needed_baseline, "s")
         logger.info("Training time elapased: {}s".format(time_needed_baseline))
         plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance)
 
@@ -59,7 +60,7 @@ def main(_):
 def training(model, mnist, task_permutation, use_memory=False):
     last_performance = []
     for task in range(args.num_tasks_to_run):
-        print("\nTraining task:", task + 1, "/", args.num_tasks_to_run)
+        # print("\nTraining task:", task + 1, "/", args.num_tasks_to_run)
         logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
         for i in tqdm(range(10000)):
             batch = mnist.train.next_batch(args.batch_size)
@@ -80,31 +81,37 @@ def training(model, mnist, task_permutation, use_memory=False):
             acc = acc * 100
             if args.num_tasks_to_run == task + 1:
                 last_performance.append(acc)
-            print("Testing, task: ", test_task + 1, " \tAccuracy: ", acc)
+            # print("Testing, task: ", test_task + 1, " \tAccuracy: ", acc)
             logger.info("Testing, task: {}\tAccuracy: {}".format(test_task + 1, acc))
 
     return last_performance
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--num-tasks-to-run", type=int, default=20,
-                        help="Number of task to run")
-    parser.add_argument("--memory-size", type=int, default=15000,
-                        help="Memory size")
-    parser.add_argument("--memory-each", type=int, default=1000,
-                        help="Add to memory after these number of steps")
-    parser.add_argument("--batch-size", type=int, default=32,
-                        help="Size of batch for updates")
-    parser.add_argument("--learning-rate", type=float, default=0.5,
-                        help="Learning rate")
-    parser.add_argument("--memory_using_start", type=int, default=1000,
-                        help="using memory after n step ")
-
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("--num-tasks-to-run", type=int, default=20,
+    #                     help="Number of task to run")
+    # parser.add_argument("--memory-size", type=int, default=15000,
+    #                     help="Memory size")
+    # parser.add_argument("--memory-each", type=int, default=1000,
+    #                     help="Add to memory after these number of steps")
+    # parser.add_argument("--batch-size", type=int, default=32,
+    #                     help="Size of batch for updates")
+    # parser.add_argument("--learning-rate", type=float, default=0.5,
+    #                     help="Learning rate")
+    # parser.add_argument("--memory_using_start", type=int, default=1000,
+    #                     help="using memory after n step ")
+    # parser.add_argument("--log", type=str, default="logs/log.txt",
+    #                     help="the file saved logs")
+    #
+    # args = parser.parse_args()
+    args = set_args()
 
     logger = logging.getLogger(__name__)
     logger.setLevel(level=logging.INFO)
-    handler = logging.FileHandler("logs/log.txt")
+    handler = logging.FileHandler(args.log, mode="w")
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    logger.addHandler(console)
     tf.app.run()

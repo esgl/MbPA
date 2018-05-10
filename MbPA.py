@@ -6,6 +6,7 @@ class MbPA:
 
     def __init__(self, sess, args):
         with tf.variable_scope(args.name):
+            self.args = args
             self.learning_rate = args.learning_rate
             self.session = sess
 
@@ -65,9 +66,19 @@ class MbPA:
         return x, y
 
     def add_to_memory(self, xs, ys):
-        self.M.add(xs, ys)
+        if self.args.sample_add == "normal":
+            self.M.add(xs, ys)
+        elif self.args.sample_add == "lru":
+            self.M.add_lru(xs, ys)
+        elif self.args.sample_add == "rand":
         # self.M.ran_add(xs, ys)
-        self.M.add_ran(xs, ys)
+            self.M.add_rand(xs, ys)
+        elif self.args.sample_add == "knn":
+            self.M.add_knn(xs, ys)
+        elif self.args.sample_add == "knn_lru":
+            self.M.add_knn_lru(xs, ys)
+        else:
+            raise Exception("error sample adding type, pleace choose in ['normal', 'lru', 'rand']")
 
     @staticmethod
     def network(x):
