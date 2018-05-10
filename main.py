@@ -87,23 +87,7 @@ def training(model, mnist, task_permutation, use_memory=False):
     return last_performance
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--num-tasks-to-run", type=int, default=20,
-    #                     help="Number of task to run")
-    # parser.add_argument("--memory-size", type=int, default=15000,
-    #                     help="Memory size")
-    # parser.add_argument("--memory-each", type=int, default=1000,
-    #                     help="Add to memory after these number of steps")
-    # parser.add_argument("--batch-size", type=int, default=32,
-    #                     help="Size of batch for updates")
-    # parser.add_argument("--learning-rate", type=float, default=0.5,
-    #                     help="Learning rate")
-    # parser.add_argument("--memory_using_start", type=int, default=1000,
-    #                     help="using memory after n step ")
-    # parser.add_argument("--log", type=str, default="logs/log.txt",
-    #                     help="the file saved logs")
-    #
-    # args = parser.parse_args()
+   
     args = set_args()
 
     logger = logging.getLogger(__name__)
