@@ -260,3 +260,66 @@ Memory-based parameter Adaptation....
 
 
 Training task:1/20
+Testing, task: 1	Accuracy: 85.80999970436096
+
+Training task:2/20
+Testing, task: 1	Accuracy: 82.15000033378601
+Testing, task: 2	Accuracy: 84.82000231742859
+
+Training task:3/20
+Testing, task: 1	Accuracy: 78.65999937057495
+Testing, task: 2	Accuracy: 80.79000115394592
+Testing, task: 3	Accuracy: 83.41000080108643
+
+Training task:4/20
+Testing, task: 1	Accuracy: 75.3000020980835
+Testing, task: 2	Accuracy: 77.66000032424927
+Testing, task: 3	Accuracy: 80.5400013923645
+Testing, task: 4	Accuracy: 80.26000261306763
+
+Training task:5/20
+Testing, task: 1	Accuracy: 73.84999990463257
+Testing, task: 2	Accuracy: 73.5700011253357
+Testing, task: 3	Accuracy: 73.5700011253357
+Testing, task: 4	Accuracy: 74.72000122070312
+Testing, task: 5	Accuracy: 79.71000075340271
+
+Training task:6/20
+Testing, task: 1	Accuracy: 70.3499972820282
+Testing, task: 2	Accuracy: 71.38000130653381
+Testing, task: 3	Accuracy: 71.79999947547913
+Testing, task: 4	Accuracy: 71.09000086784363
+Testing, task: 5	Accuracy: 72.47999906539917
+Testing, task: 6	Accuracy: 80.61000108718872
+
+Training task:7/20
+Testing, task: 1	Accuracy: 70.06000280380249
+Testing, task: 2	Accuracy: 69.40000057220459
+Testing, task: 3	Accuracy: 68.94000172615051
+Testing, task: 4	Accuracy: 67.80999898910522
+Testing, task: 5	Accuracy: 67.80999898910522
+Testing, task: 6	Accuracy: 75.0
+Testing, task: 7	Accuracy: 78.97999882698059
+
+Training task:8/20
+Testing, task: 1	Accuracy: 69.8199987411499
+Testing, task: 2	Accuracy: 66.94999933242798
+Testing, task: 3	Accuracy: 67.43999719619751
+Testing, task: 4	Accuracy: 67.18000173568726
+Testing, task: 5	Accuracy: 62.5
+Testing, task: 6	Accuracy: 71.05000019073486
+Testing, task: 7	Accuracy: 74.21000003814697
+Testing, task: 8	Accuracy: 79.76999878883362
+
+Training task:9/20
+Testing, task: 1	Accuracy: 67.03000068664551
+Testing, task: 2	Accuracy: 65.82000255584717
+Testing, task: 3	Accuracy: 64.7599995136261
+Testing, task: 4	Accuracy: 65.85999727249146
+Testing, task: 5	Accuracy: 62.73999810218811
+Testing, task: 6	Accuracy: 67.15999841690063
+Testing, task: 7	Accuracy: 70.02000212669373
+Testing, task: 8	Accuracy: 73.1000006198883
+Testing, task: 9	Accuracy: 78.76999974250793
+
+Training task:10/20
