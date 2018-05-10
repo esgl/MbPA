@@ -1,0 +1,8 @@
+
+Paramters used: Namespace(batch_size=32, learning_rate=0.5, memory_each=1000, memory_size=15000, memory_using_start=1000, num_tasks_to_run=20)
+
+
+Baseline MLP training...
+
+
+Training task:1/20

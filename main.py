@@ -5,6 +5,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from MbPA import MbPA
 import time
 from tqdm import tqdm
+import logging
 
 def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted):
     import matplotlib.pyplot as plt
@@ -23,6 +24,8 @@ def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted):
 def main(_):
     with tf.Session() as sess:
         print("\nParamters used: ", args, "\n")
+        logger.info("\nParamters used: {}\n".format(args))
+
         args.name = "mlp"
         baseline_model = MbPA(sess, args)
         args.name = "mbpa"
@@ -34,19 +37,22 @@ def main(_):
             task_permutation.append(np.random.permutation(784))
 
         print("\nBaseline MLP training...\n")
+        logger.info("\nBaseline MLP training...\n")
         start = time.time()
         performance_baseline = training(baseline_model, mnist, task_permutation, False)
         end = time.time()
         time_needed_baseline = round(end - start)
         print("Training time elapased: ", time_needed_baseline, "s")
+        logger.info("Training time elapased: {}s".format(time_needed_baseline))
 
         print("\nMemory-based parameter Adaptation....\n")
+        logger.info("\nMemory-based parameter Adaptation....\n")
         start = time.time()
         mbpa_performance = training(mbpa_model, mnist, task_permutation, True)
         end = time.time()
         time_needed_baseline = round(end - start)
         print("Training time elapased: ", time_needed_baseline, "s")
-
+        logger.info("Training time elapased: {}s".format(time_needed_baseline))
         plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance)
 
 
@@ -54,7 +60,7 @@ def training(model, mnist, task_permutation, use_memory=False):
     last_performance = []
     for task in range(args.num_tasks_to_run):
         print("\nTraining task:", task + 1, "/", args.num_tasks_to_run)
-
+        logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
         for i in tqdm(range(10000)):
             batch = mnist.train.next_batch(args.batch_size)
             batch = (batch[0][:, task_permutation[task]], batch[1])
@@ -75,6 +81,7 @@ def training(model, mnist, task_permutation, use_memory=False):
             if args.num_tasks_to_run == task + 1:
                 last_performance.append(acc)
             print("Testing, task: ", test_task + 1, " \tAccuracy: ", acc)
+            logger.info("Testing, task: {}\tAccuracy: {}".format(test_task + 1, acc))
 
     return last_performance
 
@@ -94,4 +101,10 @@ if __name__ == "__main__":
                         help="using memory after n step ")
 
     args = parser.parse_args()
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(level=logging.INFO)
+    handler = logging.FileHandler("logs/log.txt")
+    handler.setLevel(logging.INFO)
+    logger.addHandler(handler)
     tf.app.run()
