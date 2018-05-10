@@ -80,9 +80,9 @@ def training(model, mnist, task_permutation, use_memory=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num-tasks-to-run", type=int, default=50,
+    parser.add_argument("--num-tasks-to-run", type=int, default=20,
                         help="Number of task to run")
-    parser.add_argument("--memory-size", type=int, default=500000,
+    parser.add_argument("--memory-size", type=int, default=15000,
                         help="Memory size")
     parser.add_argument("--memory-each", type=int, default=1000,
                         help="Add to memory after these number of steps")
