@@ -1,14 +1,34 @@
 import numpy as np
+from annoy import AnnoyIndex
+
 class Memory:
-    def __init__(self, capacity, key_dimension, value_dimension):
+    def __init__(self, capacity, state_dim, value_dim):
         self.capacity = capacity
-        self.states = np.zeros((capacity, key_dimension))
-        self.values = np.zeros((capacity, value_dimension))
+        self.states = np.zeros((capacity, state_dim))
+        self.values = np.zeros((capacity, value_dim))
 
         self.curr_capacity = 0
         self.curr_ = 0
         self.lru = np.zeros(capacity)
         self.tm = 0
+
+        self.cached_states = []
+        self.cached_values = []
+        self.cached_indices = []
+
+        self.index = AnnoyIndex(state_dim)
+        self.index.set_seed(123)
+        self.update_size = 1000
+        self.build_capacity = 0
+
+    def sample_knn(self, states, k):
+        inds = []
+        for state in states:
+            ind, _ = self.index.get_nns_by_vector(state, k)
+            inds.append(ind)
+        inds = np.reshape(np.array(inds), -1)
+        return self.states[inds], self.values[inds]
+
 
     def sample(self, n_samples):
         if self.curr_capacity < n_samples or n_samples == 0:
@@ -22,35 +42,86 @@ class Memory:
 
         return embs, values
 
-    def add(self, keys, values):
+    def add_knn(self, states, values):
+        self._add_knn(states, values)
 
-        for i, _ in enumerate(keys):
-            self.curr_ = (self.curr_ + 1) % self.capacity
-            self.states[self.curr_] = keys[i]
-            self.values[self.curr_] = values[i]
+    def add_knn_lru(self, states, values):
+        self._add_knn(states, values, lru=True)
 
-            if self.curr_capacity < self.capacity:
-                self.curr_capacity += 1
+    def add(self, states, values):
+        self._add(states, values)
 
-    def ran_add(self, keys, values):
-        for i, key in enumerate(keys):
+    def add_lru(self, states, values):
+        self._add(states, values, lru=True)
+
+    def add_rand(self, states, values):
+        self._add(states, values, rand=True)
+
+    def _insert(self, states, values, indices):
+        self.cached_states = self.cached_states + states
+        self.cached_values = self.cached_values + values
+        self.cached_indices = self.cached_indices + indices
+        if len(self.cached_states) >= self.update_size:
+            self._update_index()
+
+    def _update_index(self):
+        self.index.unbuild()
+        for i, ind in enumerate(self.cached_states):
+            self.states[ind] = self.cached_states[i]
+            self.values[ind] = self.cached_values(i)
+            self.index.add_item(ind, self.cached_states[i])
+
+        self.index.build(50)
+        self.build_capacity = self.curr_capacity
+
+        self.cached_states = []
+        self.cached_values = []
+        self.cached_indices = []
+
+    def _rebuild_index(self):
+        self.index.unbuild()
+        for ind, state in enumerate(self.states[:self.curr_capacity]):
+            self.index.add_item(ind, state)
+        self.index.build(50)
+        self.build_capacity = self.curr_capacity
+
+    def _add_knn(self, states, values, lru=False):
+        indices = []
+        states_ = []
+        values_ = []
+        for i, _ in enumerate(states):
+            if lru:
+                if self.curr_capacity > self.capacity:
+                    ind = np.argmin(self.lru)
+                else:
+                    ind = self.curr_capacity
+                    self.curr_capacity += 1
+            else:
+                if self.curr_capacity > self.capacity:
+                    self.curr_ = (self.curr_ + 1) % self.capacity
+                    ind = self.curr_
+            self.lru[ind] = self.tm
+            indices.append(ind)
+            states_.append(states[i])
+            values_.append(values[i])
+        self._insert(states_, values_, indices)
+
+    def _add(self, states, values, rand=False, lru=False):
+        for i, state in enumerate(states):
             if self.curr_capacity < self.capacity:
                 self.curr_ = (self.curr_ + 1) % self.capacity
-                self.states[self.curr_] = key
+                self.states[self.curr_] = state
                 self.values[self.curr_] = values[i]
+                if self.curr_capacity < self.capacity:
+                    self.curr_capacity += 1
             else:
-                self.curr_ = np.random.choice(np.arange(self.curr_capacity), 1, replace=False)
-                self.states[self.curr_] = key
-                self.values[self.curr_] = values[i]
-        # print("curr_capacity: {}".format(self.curr_capacity))
+                if lru:
+                    self.curr_ = np.argmin(self.lru)
+                if rand:
+                    self.curr_ = np.random.choice(np.arange(self.curr_capacity), 1, replace=False)
 
-    def lru_add(self, keys, values):
-        for i, key in enumerate(keys):
-            if self.curr_capacity < self.capacity:
-                self.curr_ = (self.curr_ + 1) % self.capacity
-                self.states[self.curr_] = key
+                if not lru and not rand:
+                    self.curr_ = (self.curr_ + 1) % self.capacity
+                self.states[self.curr_] = state
                 self.values[self.curr_] = values[i]
-            else:
-                self.curr_ = np.argmin(self.lru)
-                self.states[self.curr_] = key
-                self.values[self.curr_] = values[i]
+
