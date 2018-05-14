@@ -53,7 +53,7 @@ class MbPA_KNN:
             labels=self.y_test,
             logits=self.y_test_
         ))
-        self.optim_test = tf.train.GradientDescentOptimizer(self.args.learning_rate).minimize(self.cross_entropy_test)
+        self.optim_test = tf.train.GradientDescentOptimizer(self.args.learning_rate/100).minimize(self.cross_entropy_test)
         self.correct_prediction_test = tf.equal(tf.argmax(self.y_test, 1), tf.argmax(self.y_test_, 1))
         self.accuracy_test = tf.reduce_mean(tf.cast(self.correct_prediction_test, tf.float32))
         for xs_test_i in range(len(xs_test)):
