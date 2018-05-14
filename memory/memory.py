@@ -4,6 +4,7 @@ from annoy import AnnoyIndex
 class Memory:
     def __init__(self, capacity, state_dim, value_dim):
         self.capacity = capacity
+        print("state_dim:", state_dim)
         self.states = np.zeros((capacity, state_dim))
         self.values = np.zeros((capacity, value_dim))
 
@@ -20,6 +21,14 @@ class Memory:
         self.index.set_seed(123)
         self.update_size = 1000
         self.build_capacity = 0
+
+    def sample_knn_test(self, state, k):
+        inds, dists = self.index.get_nns_by_vector(state, k, include_distances=True)
+        return self.states[inds], self.values[inds], dists
+
+
+
+
 
     def sample_knn(self, states, k):
         dists = []

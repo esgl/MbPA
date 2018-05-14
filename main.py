@@ -4,6 +4,7 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from MbPA import MbPA
 from MbPA_knn import MbPA_KNN
+from MbPA_test import MbPA_KNN_Test
 import time
 from tqdm import tqdm
 import logging
@@ -28,12 +29,16 @@ def main(_):
         # print("\nParamters used: ", args, "\n")
         logger.info("\nParamters used: {}\n".format(args))
 
-        # args.name = "mlp"
+        # args.mnodel_name = "mlp"
         # # baseline_model = MbPA(sess, args)
         # baseline_model = MbPA_KNN(sess, args)
-        args.name = "mbpa"
-        # mbpa_model = MbPA(sess, args)
-        mbpa_model = MbPA_KNN(sess, args)
+        # args.model_name = "mbpa"
+        # # mbpa_model = MbPA(sess, args)
+        # mbpa_model = MbPA_KNN(sess, args)
+
+
+        args.model_name = "mbpa_test"
+        mbpa_test_model = MbPA_KNN_Test(sess, args)
         mnist = input_data.read_data_sets("mnist/", one_hot=True)
 
         task_permutation = []
@@ -50,11 +55,21 @@ def main(_):
         # # print("Training time elapased: ", time_needed_baseline, "s")
         # logger.info("Training time elapased: {}s".format(time_needed_baseline))
 
+        # # print("\nMemory-based parameter Adaptation....\n")
+        # logger.info("\nMemory-based parameter Adaptation....\n")
+        # start = time.time()
+        # # mbpa_performance = training(mbpa_model, mnist, task_permutation, True)
+        # mbpa_performance = training_knn(mbpa_model, mnist, task_permutation, True)
+        # end = time.time()
+        # time_needed_baseline = round(end - start)
+        # # print("Training time elapased: ", time_needed_baseline, "s")
+        # logger.info("Training time elapased: {}s".format(time_needed_baseline))
+
         # print("\nMemory-based parameter Adaptation....\n")
-        logger.info("\nMemory-based parameter Adaptation....\n")
+        logger.info("\nMemory-based test parameter Adaptation....\n")
         start = time.time()
         # mbpa_performance = training(mbpa_model, mnist, task_permutation, True)
-        mbpa_performance = training_knn(mbpa_model, mnist, task_permutation, True)
+        mbpa_test_performance = training_knn(mbpa_test_model, mnist, task_permutation, True)
         end = time.time()
         time_needed_baseline = round(end - start)
         # print("Training time elapased: ", time_needed_baseline, "s")
@@ -65,11 +80,13 @@ def training_knn(model, mnist, task_permutation, use_memory=False):
     last_performance = []
     for task in range(args.num_tasks_to_run):
         logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
-        for i in tqdm(range(10000)):
+        for i in tqdm(range(1000)):
             batch = mnist.train.next_batch(args.batch_size)
             batch = (batch[0][:, task_permutation[task]], batch[1])
             if use_memory:
                 embeddings = model.train(batch[0], batch[1])
+                # print("embedding.shape:{}", np.shape(embeddings))
+                # print("value shape: {}", np.shape(batch[1]))
                 # print("embeddings:", embeddings)
                 # if i % args.memory_each == 0:
                 model.add_to_memory(embeddings, batch[1])
