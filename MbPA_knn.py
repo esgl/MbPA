@@ -47,7 +47,6 @@ class MbPA_KNN:
 
         self.x_test = tf.placeholder(tf.float32, shape=[None, self.embed_dim], name="x_test")
         self.y_test = tf.placeholder(tf.float32, shape=[None, 10], name="y_test")
-
         self.y_test_ = self.output_network(self.x_test)
         self.cross_entropy_test = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
             labels=self.y_test,

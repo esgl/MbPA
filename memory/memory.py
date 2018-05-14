@@ -19,7 +19,7 @@ class Memory:
 
         self.index = AnnoyIndex(state_dim)
         self.index.set_seed(123)
-        self.update_size = 1000
+        self.update_size = 5000
         self.build_capacity = 0
 
     def sample_knn_test(self, state, k):

@@ -18,22 +18,22 @@ class MbPA_KNN_Test:
                 with tf.variable_scope("embedding"):
                     self.out = tf.reshape(self.x, [-1, 28, 28, 1])
                     with tf.variable_scope("conv"):
-                        self.out, self.w["l1_w"], self.w["l1_b"] = conv2d(
-                            x=self.out,
-                            output_dim=16,
-                            kernel_size=[8, 8],
-                            stride=[4, 4],
-                            activation_fn=tf.nn.relu,
-                            name="conv1"
-                        )
-                        self.out, self.w["l2_w"], self.w["l2_b"] = conv2d(
-                            x=self.out,
-                            output_dim=32,
-                            kernel_size=[4, 4],
-                            stride=[2, 2],
-                            activation_fn=tf.nn.relu,
-                            name="conv2"
-                        )
+                        # self.out, self.w["l1_w"], self.w["l1_b"] = conv2d(
+                        #     x=self.out,
+                        #     output_dim=16,
+                        #     kernel_size=[8, 8],
+                        #     stride=[4, 4],
+                        #     activation_fn=tf.nn.relu,
+                        #     name="conv1"
+                        # )
+                        # self.out, self.w["l2_w"], self.w["l2_b"] = conv2d(
+                        #     x=self.out,
+                        #     output_dim=32,
+                        #     kernel_size=[4, 4],
+                        #     stride=[2, 2],
+                        #     activation_fn=tf.nn.relu,
+                        #     name="conv2"
+                        # )
                         self.embed = layers.flatten(self.out)
                         self.embed_dim = self.embed.get_shape()[-1]
 
@@ -140,6 +140,12 @@ class MbPA_KNN_Test:
                                  self.x_eval: xs_test_embed_sample,
                                  self.y_eval: ys_test_sample
                              })
+            acc_sample = self.session.run(self.accuracy_eval,
+                                          feed_dict={
+                                              self.x_eval: xs_test_embed_sample,
+                                              self.y_eval: ys_test_sample
+                                          })
+            print("acc_sample: {}".format(acc_sample))
             acc_ = self.session.run(self.accuracy_eval,
                 feed_dict={
                     self.x_eval: [xs_test_embed_],
