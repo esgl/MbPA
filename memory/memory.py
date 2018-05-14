@@ -28,9 +28,8 @@ class Memory:
             ind, dist = self.index.get_nns_by_vector(state, k, include_distances=True)
             inds.append(ind)
             dists.append(dist)
-        inds = np.reshape(np.array(inds), -1)
+        # inds = np.reshape(np.array(inds), -1)
         return self.states[inds], self.values[inds], dists
-
 
     def sample(self, n_samples):
         if self.curr_capacity < n_samples or n_samples == 0:
@@ -43,6 +42,7 @@ class Memory:
         values = self.values[idx]
 
         return embs, values
+
 
     def add_knn(self, states, values):
         self._add_knn(states, values)
@@ -68,9 +68,9 @@ class Memory:
 
     def _update_index(self):
         self.index.unbuild()
-        for i, ind in enumerate(self.cached_states):
+        for i, ind in enumerate(self.cached_indices):
             self.states[ind] = self.cached_states[i]
-            self.values[ind] = self.cached_values(i)
+            self.values[ind] = self.cached_values[i]
             self.index.add_item(ind, self.cached_states[i])
 
         self.index.build(50)
@@ -88,20 +88,26 @@ class Memory:
         self.build_capacity = self.curr_capacity
 
     def _add_knn(self, states, values, lru=False):
+        # print(states)
         indices = []
         states_ = []
         values_ = []
         for i, _ in enumerate(states):
             if lru:
-                if self.curr_capacity > self.capacity:
+                if self.curr_capacity >= self.capacity:
                     ind = np.argmin(self.lru)
                 else:
+
                     ind = self.curr_capacity
                     self.curr_capacity += 1
             else:
-                if self.curr_capacity > self.capacity:
+                if self.curr_capacity >= self.capacity:
                     self.curr_ = (self.curr_ + 1) % self.capacity
                     ind = self.curr_
+                else:
+                    ind = self.curr_capacity
+                    self.curr_capacity += 1
+
             self.lru[ind] = self.tm
             indices.append(ind)
             states_.append(states[i])
@@ -126,4 +132,8 @@ class Memory:
                     self.curr_ = (self.curr_ + 1) % self.capacity
                 self.states[self.curr_] = state
                 self.values[self.curr_] = values[i]
-
+    @property
+    def length(self):
+        # assert self.index.get_n_items() == self.curr_capacity
+        # return self.curr_capacity
+        return  self.index.get_n_items()

@@ -28,9 +28,9 @@ def main(_):
         # print("\nParamters used: ", args, "\n")
         logger.info("\nParamters used: {}\n".format(args))
 
-        args.name = "mlp"
-        # baseline_model = MbPA(sess, args)
-        baseline_model = MbPA_KNN(sess, args)
+        # args.name = "mlp"
+        # # baseline_model = MbPA(sess, args)
+        # baseline_model = MbPA_KNN(sess, args)
         args.name = "mbpa"
         # mbpa_model = MbPA(sess, args)
         mbpa_model = MbPA_KNN(sess, args)
@@ -40,15 +40,15 @@ def main(_):
         for task in range(args.num_tasks_to_run):
             task_permutation.append(np.random.permutation(784))
 
-        # print("\nBaseline MLP training...\n")
-        logger.info("\nBaseline MLP training...\n")
-        start = time.time()
-        # performance_baseline = training(baseline_model, mnist, task_permutation, False)
-        performance_baseline = training_knn(baseline_model, mnist, task_permutation, False)
-        end = time.time()
-        time_needed_baseline = round(end - start)
-        # print("Training time elapased: ", time_needed_baseline, "s")
-        logger.info("Training time elapased: {}s".format(time_needed_baseline))
+        # # print("\nBaseline MLP training...\n")
+        # logger.info("\nBaseline MLP training...\n")
+        # start = time.time()
+        # # performance_baseline = training(baseline_model, mnist, task_permutation, False)
+        # performance_baseline = training_knn(baseline_model, mnist, task_permutation, False)
+        # end = time.time()
+        # time_needed_baseline = round(end - start)
+        # # print("Training time elapased: ", time_needed_baseline, "s")
+        # logger.info("Training time elapased: {}s".format(time_needed_baseline))
 
         # print("\nMemory-based parameter Adaptation....\n")
         logger.info("\nMemory-based parameter Adaptation....\n")
@@ -59,7 +59,7 @@ def main(_):
         time_needed_baseline = round(end - start)
         # print("Training time elapased: ", time_needed_baseline, "s")
         logger.info("Training time elapased: {}s".format(time_needed_baseline))
-        plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance)
+        # plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance)
 
 def training_knn(model, mnist, task_permutation, use_memory=False):
     last_performance = []
@@ -70,13 +70,15 @@ def training_knn(model, mnist, task_permutation, use_memory=False):
             batch = (batch[0][:, task_permutation[task]], batch[1])
             if use_memory:
                 embeddings = model.train(batch[0], batch[1])
-                if i % args.memory_each == 0:
-                    model.add_to_memory(embeddings, batch[1])
+                # print("embeddings:", embeddings)
+                # if i % args.memory_each == 0:
+                model.add_to_memory(embeddings, batch[1])
             else:
                 model.train(batch[0], batch[1])
         acc = model.test(batch[0], batch[1])
         acc = acc * 100
         logger.info("training Accuracy: {}".format(acc))
+        logger.info("memory length:{}".format(model.memory_length))
         for test_task in range(task + 1):
             test_images = mnist.test.images
 

@@ -26,11 +26,13 @@ class MbPA_KNN:
             self.session.run(tf.global_variables_initializer())
 
     def train(self, xs, ys):
+        # print("xs:", xs)
         embeds, _ = self.session.run([self.embed, self.optim],
                                      feed_dict={
                                          self.x: xs,
                                          self.y: ys
                                      })
+        return embeds
 
     def test(self, xs_test, ys_test):
         acc = self.session.run(
@@ -47,6 +49,7 @@ class MbPA_KNN:
         return x, y, dist
 
     def add_to_memory(self, xs, ys):
+        # print(xs)
         if self.args.sample_add == "knn":
             self.M.add_knn(xs, ys)
         elif self.args.sample_add == "knn_lru":
@@ -92,3 +95,7 @@ class MbPA_KNN:
                 num_outputs=10
             )
         return out
+
+    @property
+    def memory_length(self):
+        return self.M.length
