@@ -140,12 +140,12 @@ class MbPA_KNN_Test:
                                  self.x_eval: xs_test_embed_sample,
                                  self.y_eval: ys_test_sample
                              })
-            acc_sample = self.session.run(self.accuracy_eval,
-                                          feed_dict={
-                                              self.x_eval: xs_test_embed_sample,
-                                              self.y_eval: ys_test_sample
-                                          })
-            print("acc_sample: {}".format(acc_sample))
+            # acc_sample = self.session.run(self.accuracy_eval,
+            #                               feed_dict={
+            #                                   self.x_eval: xs_test_embed_sample,
+            #                                   self.y_eval: ys_test_sample
+            #                               })
+            # print("acc_sample: {}".format(acc_sample))
             acc_ = self.session.run(self.accuracy_eval,
                 feed_dict={
                     self.x_eval: [xs_test_embed_],
