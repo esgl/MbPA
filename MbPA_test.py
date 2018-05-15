@@ -39,19 +39,18 @@ class MbPA_KNN_Test:
 
                 with tf.variable_scope("fc"):
                     self.out = self.embed
-                    self.out, self.w["l3_w"], self.w["l3_b"] = linear(
-                        input_=self.out,
-                        output_size=1024,
-                        activation_fn=tf.nn.relu,
-                        name="fc_1"
-                    )
+                    # self.out, self.w["l3_w"], self.w["l3_b"] = linear(
+                    #     input_=self.out,
+                    #     output_size=1024,
+                    #     activation_fn=tf.nn.relu,
+                    #     name="fc_1"
+                    # )
                     self.out, self.w["l4_w"], self.w["l4_b"] = linear(
                         input_=self.out,
                         output_size=10,
                         name="fc_2"
                     )
                     self.y_ = self.out
-
 
                 self.cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
                     labels=self.y,
@@ -69,12 +68,12 @@ class MbPA_KNN_Test:
                 self.y_eval = tf.placeholder(tf.float32, shape=[None, 10], name="y_test")
                 with tf.variable_scope("test_fc"):
                     self.out = self.x_eval
-                    self.out, self.eval_w["l3_w"], self.eval_w["l3_b"] = linear(
-                        input_=self.out,
-                        output_size=1024,
-                        activation_fn=tf.nn.relu,
-                        name="fc_1"
-                    )
+                    # self.out, self.eval_w["l3_w"], self.eval_w["l3_b"] = linear(
+                    #     input_=self.out,
+                    #     output_size=1024,
+                    #     activation_fn=tf.nn.relu,
+                    #     name="fc_1"
+                    # )
                     self.out, self.eval_w["l4_w"], self.eval_w["l4_b"] = linear(
                         input_=self.out,
                         output_size=10,
@@ -85,7 +84,7 @@ class MbPA_KNN_Test:
                     labels=self.y_eval,
                     logits=self.y_eval_
                 ))
-                self.optim_eval = tf.train.GradientDescentOptimizer(self.args.learning_rate).minimize(
+                self.optim_eval = tf.train.GradientDescentOptimizer(self.args.learning_rate/10).minimize(
                     self.cross_entropy_eval)
                 self.correct_prediction_eval = tf.equal(tf.argmax(self.y_eval, 1), tf.argmax(self.y_eval_, 1))
                 self.accuracy_eval = tf.reduce_mean(tf.cast(self.correct_prediction_eval, tf.float32))
@@ -140,12 +139,20 @@ class MbPA_KNN_Test:
             #     "xs_sample": xs_test_embed_sample,
             #     "ys_sample": ys_test_sample
             # })
-
-            self.session.run(self.optim_eval,
-                             feed_dict={
-                                 self.x_eval: xs_test_embed_sample,
-                                 self.y_eval: ys_test_sample
-                             })
+            for j in range(10):
+                sample_length = np.shape(xs_test_embed_sample)[0]
+                sample_permutation = np.random.permutation(range(sample_length))
+                if sample_length < self.args.batch_size:
+                    batch_size = sample_length
+                else:
+                    batch_size = self.args.batch_size
+                xs_test_embed_sample_batch = xs_test_embed_sample[sample_permutation[:batch_size]]
+                ys_test_sample_batch = ys_test_sample[sample_permutation[:batch_size]]
+                self.session.run(self.optim_eval,
+                                 feed_dict={
+                                     self.x_eval: xs_test_embed_sample_batch,
+                                     self.y_eval: ys_test_sample_batch
+                                 })
             # acc_sample = self.session.run(self.accuracy_eval,
             #                               feed_dict={
             #                                   self.x_eval: xs_test_embed_sample,

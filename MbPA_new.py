@@ -47,12 +47,12 @@ class MbPA_KNN_Test:
                 self.ya = tf.concat(values=[self.y, self.memory_batch_y], axis=0)
                 with tf.variable_scope("fc"):
                     self.out = self.xa
-                    self.out, self.w["l3_w"], self.w["l3_b"] = linear(
-                        input_=self.out,
-                        output_size=1024,
-                        activation_fn=tf.nn.relu,
-                        name="fc_1"
-                    )
+                    # self.out, self.w["l3_w"], self.w["l3_b"] = linear(
+                    #     input_=self.out,
+                    #     output_size=1024,
+                    #     activation_fn=tf.nn.relu,
+                    #     name="fc_1"
+                    # )
                     self.out, self.w["l4_w"], self.w["l4_b"] = linear(
                         input_=self.out,
                         output_size=10,
