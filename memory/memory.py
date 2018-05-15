@@ -27,9 +27,6 @@ class Memory:
         return self.states[inds], self.values[inds], dists
 
 
-
-
-
     def sample_knn(self, states, k):
         dists = []
         inds = []
@@ -127,8 +124,8 @@ class Memory:
         for i, state in enumerate(states):
             if self.curr_capacity < self.capacity:
                 self.curr_ = (self.curr_ + 1) % self.capacity
-                self.states[self.curr_] = state
-                self.values[self.curr_] = values[i]
+                # self.states[self.curr_] = state
+                # self.values[self.curr_] = values[i]
                 if self.curr_capacity < self.capacity:
                     self.curr_capacity += 1
             else:
@@ -139,8 +136,8 @@ class Memory:
 
                 if not lru and not rand:
                     self.curr_ = (self.curr_ + 1) % self.capacity
-                self.states[self.curr_] = state
-                self.values[self.curr_] = values[i]
+            self.states[self.curr_] = state
+            self.values[self.curr_] = values[i]
     @property
     def length(self):
         # assert self.index.get_n_items() == self.curr_capacity

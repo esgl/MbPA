@@ -18,33 +18,33 @@ class MbPA_KNN_Test:
                 with tf.variable_scope("embedding"):
                     self.out = tf.reshape(self.x, [-1, 28, 28, 1])
                     with tf.variable_scope("conv"):
-                        # self.out, self.w["l1_w"], self.w["l1_b"] = conv2d(
-                        #     x=self.out,
-                        #     output_dim=16,
-                        #     kernel_size=[8, 8],
-                        #     stride=[4, 4],
-                        #     activation_fn=tf.nn.relu,
-                        #     name="conv1"
-                        # )
-                        # self.out, self.w["l2_w"], self.w["l2_b"] = conv2d(
-                        #     x=self.out,
-                        #     output_dim=32,
-                        #     kernel_size=[4, 4],
-                        #     stride=[2, 2],
-                        #     activation_fn=tf.nn.relu,
-                        #     name="conv2"
-                        # )
+                    #     self.out, self.w["l1_w"], self.w["l1_b"] = conv2d(
+                    #         x=self.out,
+                    #         output_dim=16,
+                    #         kernel_size=[8, 8],
+                    #         stride=[4, 4],
+                    #         activation_fn=tf.nn.relu,
+                    #         name="conv1"
+                    #     )
+                    #     self.out, self.w["l2_w"], self.w["l2_b"] = conv2d(
+                    #         x=self.out,
+                    #         output_dim=32,
+                    #         kernel_size=[4, 4],
+                    #         stride=[2, 2],
+                    #         activation_fn=tf.nn.relu,
+                    #         name="conv2"
+                    #     )
                         self.embed = layers.flatten(self.out)
                         self.embed_dim = self.embed.get_shape()[-1]
 
                 with tf.variable_scope("fc"):
                     self.out = self.embed
-                    # self.out, self.w["l3_w"], self.w["l3_b"] = linear(
-                    #     input_=self.out,
-                    #     output_size=1024,
-                    #     activation_fn=tf.nn.relu,
-                    #     name="fc_1"
-                    # )
+                    self.out, self.w["l3_w"], self.w["l3_b"] = linear(
+                        input_=self.out,
+                        output_size=1024,
+                        activation_fn=tf.nn.relu,
+                        name="fc_1"
+                    )
                     self.out, self.w["l4_w"], self.w["l4_b"] = linear(
                         input_=self.out,
                         output_size=10,
@@ -68,12 +68,12 @@ class MbPA_KNN_Test:
                 self.y_eval = tf.placeholder(tf.float32, shape=[None, 10], name="y_test")
                 with tf.variable_scope("test_fc"):
                     self.out = self.x_eval
-                    # self.out, self.eval_w["l3_w"], self.eval_w["l3_b"] = linear(
-                    #     input_=self.out,
-                    #     output_size=1024,
-                    #     activation_fn=tf.nn.relu,
-                    #     name="fc_1"
-                    # )
+                    self.out, self.eval_w["l3_w"], self.eval_w["l3_b"] = linear(
+                        input_=self.out,
+                        output_size=1024,
+                        activation_fn=tf.nn.relu,
+                        name="fc_1"
+                    )
                     self.out, self.eval_w["l4_w"], self.eval_w["l4_b"] = linear(
                         input_=self.out,
                         output_size=10,
@@ -110,7 +110,7 @@ class MbPA_KNN_Test:
         return embeds
 
     def get_memory_sample(self, xs, k=512):
-        xs, ys, dist = self.M.sample_knn_test(xs, k)
+        xs, ys, dist = self.M.sample_knn_test(xs, self.args.k)
         return xs, ys, dist
 
     def add_to_memory(self, xs, ys):
@@ -133,14 +133,10 @@ class MbPA_KNN_Test:
         for i in tqdm(range(len(test_embed))):
             self.update_training_to_prediction()
             xs_test_embed_ = test_embed[i]
-            xs_test_embed_sample, ys_test_sample, _ = self.get_memory_sample(xs_test_embed_)
+            xs_test_embed_sample, ys_test_sample, dists = self.get_memory_sample(xs_test_embed_)
 
-            # dataset = Dataset.from_tensors({
-            #     "xs_sample": xs_test_embed_sample,
-            #     "ys_sample": ys_test_sample
-            # })
-            for j in range(10):
-                sample_length = np.shape(xs_test_embed_sample)[0]
+            sample_length = np.shape(xs_test_embed_sample)[0]
+            for j in range(2):
                 sample_permutation = np.random.permutation(range(sample_length))
                 if sample_length < self.args.batch_size:
                     batch_size = sample_length
@@ -153,12 +149,12 @@ class MbPA_KNN_Test:
                                      self.x_eval: xs_test_embed_sample_batch,
                                      self.y_eval: ys_test_sample_batch
                                  })
-            # acc_sample = self.session.run(self.accuracy_eval,
-            #                               feed_dict={
-            #                                   self.x_eval: xs_test_embed_sample,
-            #                                   self.y_eval: ys_test_sample
-            #                               })
-            # print("acc_sample: {}".format(acc_sample))
+
+            # self.session.run(self.optim_eval,
+            #                  feed_dict={
+            #                      self.x_eval: xs_test_embed_sample,
+            #                      self.y_eval: ys_test_sample
+            #                  })
             acc_ = self.session.run(self.accuracy_eval,
                 feed_dict={
                     self.x_eval: [xs_test_embed_],

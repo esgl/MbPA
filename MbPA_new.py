@@ -19,31 +19,31 @@ class MbPA_KNN_Test:
                 with tf.variable_scope("embedding"):
                     self.out = tf.reshape(self.x, [-1, 28, 28, 1])
                     with tf.variable_scope("conv"):
-                        # self.out, self.w["l1_w"], self.w["l1_b"] = conv2d(
-                        #     x=self.out,
-                        #     output_dim=16,
-                        #     kernel_size=[8, 8],
-                        #     stride=[4, 4],
-                        #     activation_fn=tf.nn.relu,
-                        #     name="conv1"
-                        # )
-                        # self.out, self.w["l2_w"], self.w["l2_b"] = conv2d(
-                        #     x=self.out,
-                        #     output_dim=32,
-                        #     kernel_size=[4, 4],
-                        #     stride=[2, 2],
-                        #     activation_fn=tf.nn.relu,
-                        #     name="conv2"
-                        # )
+                #         # self.out, self.w["l1_w"], self.w["l1_b"] = conv2d(
+                #         #     x=self.out,
+                #         #     output_dim=16,
+                #         #     kernel_size=[8, 8],
+                #         #     stride=[4, 4],
+                #         #     activation_fn=tf.nn.relu,
+                #         #     name="conv1"
+                #         # )
+                #         # self.out, self.w["l2_w"], self.w["l2_b"] = conv2d(
+                #         #     x=self.out,
+                #         #     output_dim=32,
+                #         #     kernel_size=[4, 4],
+                #         #     stride=[2, 2],
+                #         #     activation_fn=tf.nn.relu,
+                #         #     name="conv2"
+                #         # )
                         self.embed = layers.flatten(self.out)
-                        self.embed_dim = self.embed.get_shape()[-1]
-                self.M = Memory(self.args.memory_size, self.embed.get_shape()[-1], self.y.get_shape()[-1])
+                #         self.embed_dim = self.embed.get_shape()[-1]
+                self.M = Memory(self.args.memory_size, self.x.get_shape()[-1], self.y.get_shape()[-1])
                 embs_and_values = tf.py_func(self.get_memory_sample,
                                              [self.memory_sample_batch],
                                              [tf.float64, tf.float64])
                 self.memory_batch_x = tf.to_float(embs_and_values[0])
                 self.memory_batch_y = tf.to_float(embs_and_values[1])
-                self.xa = tf.concat(values=[self.embed, self.memory_batch_x], axis=0)
+                self.xa = tf.concat(values=[self.x, self.memory_batch_x], axis=0)
                 self.ya = tf.concat(values=[self.y, self.memory_batch_y], axis=0)
                 with tf.variable_scope("fc"):
                     self.out = self.xa

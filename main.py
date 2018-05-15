@@ -84,14 +84,14 @@ def training_knn(model, mnist, task_permutation, use_memory=False):
                 # print("embedding.shape:{}", np.shape(embeddings))
                 # print("value shape: {}", np.shape(batch[1]))
                 # print("embeddings:", embeddings)
-                # if i % args.memory_each == 0:
-                model.add_to_memory(embeddings, batch[1])
+                if i % args.memory_each == 0:
+                    model.add_to_memory(embeddings, batch[1])
             else:
                 model.train(batch[0], batch[1])
         acc_ = model.test(batch[0], batch[1])
         acc_ = acc_ * 100
         logger.info("training Accuracy: {}".format(acc_))
-        # logger.info("memory length:{}".format(model.memory_length))
+        logger.info("memory length:{}".format(model.memory_length))
         average_acc = []
         for test_task in range(task + 1):
             test_images = mnist.test.images
