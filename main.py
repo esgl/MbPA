@@ -12,6 +12,7 @@ from args import set_args
 def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted, knn_memory_adapted, filename):
     import matplotlib.pyplot as plt
     tasks = range(1, num_tasks_to_run + 1)
+    fig = plt.figure()
     plt.plot(tasks, baseline_mlp[::-1])
     plt.plot(tasks, memoryadaoted[::-1])
     plt.plot(tasks, knn_memory_adapted[::-1])
@@ -21,7 +22,7 @@ def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted, knn_memory_adapte
     plt.ylim([1, 100])
     plt.xticks(tasks)
     plt.show()
-    plt.savefig("logs/{}.png".format(filename))
+    fig.savefig("logs/{}.png".format(filename))
 
 
 
