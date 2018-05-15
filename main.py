@@ -107,7 +107,7 @@ def training_knn(model, mnist, task_permutation, use_memory=False):
                 last_performance.append(acc)
             # print("Testing, task: ", test_task + 1, " \tAccuracy: ", acc)
             logger.info("Testing, task: {}\tAccuracy: {}".format(test_task + 1, acc))
-        logging.info("average accuracy: {}".format(np.mean(average_acc)))
+        logger.info("average accuracy: {}".format(np.mean(average_acc)))
     return last_performance
 
 def training(model, mnist, task_permutation, use_memory=False):
@@ -141,7 +141,7 @@ def training(model, mnist, task_permutation, use_memory=False):
                 last_performance.append(acc)
             # print("Testing, task: ", test_task + 1, " \tAccuracy: ", acc)
             logger.info("Testing, task: {}\tAccuracy: {}".format(test_task + 1, acc))
-        logging.info("average accuracy: {}".format(np.mean(average_acc)))
+        logger.info("average accuracy: {}".format(np.mean(average_acc)))
     return last_performance
 
 if __name__ == "__main__":
