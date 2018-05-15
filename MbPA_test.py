@@ -4,7 +4,7 @@ from memory.memory import Memory
 from ops import conv2d, linear
 import numpy as np
 from tqdm import tqdm
-from tensorflow.contrib.data import Dataset
+# from tensorflow.contrib.data import Dataset
 class MbPA_KNN_Test:
     def __init__(self, sess, args):
         self.args = args
