@@ -3,7 +3,6 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from MbPA import MbPA
-from MbPA_knn import MbPA_KNN
 from MbPA_test import MbPA_KNN_Test
 import time
 from tqdm import tqdm
@@ -32,10 +31,8 @@ def main(_):
 
         args.model_name = "mlp"
         baseline_model = MbPA(sess, args)
-        # baseline_model = MbPA_KNN(sess, args)
         args.model_name = "mbpa"
         mbpa_model = MbPA(sess, args)
-        # mbpa_model = MbPA_KNN(sess, args)
 
         args.model_name = "mbpa_test"
         mbpa_test_model = MbPA_KNN_Test(sess, args)
