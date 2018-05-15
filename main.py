@@ -9,7 +9,7 @@ from tqdm import tqdm
 import logging
 from args import set_args
 
-def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted, knn_memory_adapted):
+def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted, knn_memory_adapted, filename):
     import matplotlib.pyplot as plt
     tasks = range(1, num_tasks_to_run + 1)
     plt.plot(tasks, baseline_mlp[::-1])
@@ -21,6 +21,7 @@ def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted, knn_memory_adapte
     plt.ylim([1, 100])
     plt.xticks(tasks)
     plt.show()
+    plt.savefig("logs/{}.png".format(filename))
 
 
 
@@ -70,7 +71,8 @@ def main(_):
         time_needed_baseline = round(end - start)
         print("Training time elapased: ", time_needed_baseline, "s")
         logger.info("Training time elapased: {}s".format(time_needed_baseline))
-        plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance, mbpa_test_performance)
+        plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance, mbpa_test_performance,
+                    args.log.split("/")[-1].split(".")[0])
 
 def training_knn(model, mnist, task_permutation, use_memory=False):
     last_performance = []

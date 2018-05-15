@@ -12,10 +12,10 @@ class MbPA:
 
             self.x = tf.placeholder(tf.float32, shape=[None, 784], name="x")
             self.y = tf.placeholder(tf.float32, shape=[None, 10], name="y")
-            self.trainable = tf.placeholder(tf.int32, shape=(), name="trainable")
+            # self.trainable = tf.placeholder(tf.int32, shape=(), name="trainable")
             self.memory_sample_batch = tf.placeholder(tf.int16, shape=(), name="memory_sample_batch")
 
-            self.embed = self.embedding(self.x, self.trainable)
+            self.embed = self.embedding(self.x)
 
             self.M = Memory(args.memory_size, self.embed.get_shape()[-1], self.y.get_shape()[-1])
             embs_and_values = tf.py_func(self.get_memory_sample, [self.memory_sample_batch],
@@ -42,8 +42,7 @@ class MbPA:
                          feed_dict={
                              self.x: xs,
                              self.y: ys,
-                             self.memory_sample_batch: memory_sample_batch,
-                             self.trainable: 1
+                             self.memory_sample_batch: memory_sample_batch
                          })
         return embeds
 
@@ -53,8 +52,7 @@ class MbPA:
             feed_dict={
                 self.x: xs_test,
                 self.y : ys_test,
-                self.memory_sample_batch: 0,
-                self.trainable : 0
+                self.memory_sample_batch: 0
             }
         )
         return acc
@@ -77,52 +75,27 @@ class MbPA:
         else:
             raise Exception("error sample adding type, pleace choose in ['normal', 'lru', 'rand']")
 
-    @staticmethod
-    def network(x):
-        out = tf.reshape(x, [-1, 28, 28, 1])
-        with tf.variable_scope("convs"):
-            out = layers.convolution2d(inputs=out,
-                                       num_outputs=16,
-                                       kernel_size=8,
-                                       stride=4,
-                                       activation_fn=tf.nn.relu)
-            out = layers.convolution2d(inputs=out,
-                                       num_outputs=32,
-                                       kernel_size=4,
-                                       stride=2,
-                                       activation_fn=tf.nn.relu
-                                       )
-        out = layers.flatten(out)
-        with tf.variable_scope("full_connected"):
-            out = layers.fully_connected(inputs=out,
-                                         num_outputs=10,
-                                         )
-        return out
 
     @staticmethod
-    def embedding(x, trainable):
-        if trainable == 1:
-            trainable = True
-        else:
-            trainable = False
+    def embedding(x):
         out = tf.reshape(x, [-1, 28, 28, 1])
         # convs = [(16, 8, 4), (32, 4, 2)]
-        with tf.variable_scope("conv1"):
-            out = layers.convolution2d(inputs=out,
-                                       num_outputs=16,
-                                       kernel_size=8,
-                                       stride=4,
-                                       trainable=trainable)
-            out = tf.nn.relu(out)
-            out = tf.nn.max_pool(out, ksize=[1, 2, 3, 1], strides=[1, 2, 2, 1], padding="SAME")
+        # with tf.variable_scope("conv1"):
+            # out = layers.convolution2d(inputs=out,
+            #                            num_outputs=16,
+            #                            kernel_size=8,
+            #                            stride=4,
+            #                            trainable=trainable)
+            # out = tf.nn.relu(out)
+            # out = tf.nn.max_pool(out, ksize=[1, 2, 3, 1], strides=[1, 2, 2, 1], padding="SAME")
         with tf.variable_scope("conv2"):
-            out = layers.convolution2d(inputs=out,
-                                       num_outputs=32,
-                                       kernel_size=4,
-                                       stride=2,
-                                       trainable=trainable)
-            out = tf.nn.relu(out)
-            out = tf.nn.max_pool(out, ksize=[1, 2, 3, 1], strides=[1, 2, 2, 1], padding="SAME")
+            # out = layers.convolution2d(inputs=out,
+            #                            num_outputs=32,
+            #                            kernel_size=4,
+            #                            stride=2,
+            #                            trainable=trainable)
+            # out = tf.nn.relu(out)
+            # out = tf.nn.max_pool(out, ksize=[1, 2, 3, 1], strides=[1, 2, 2, 1], padding="SAME")
             embed = layers.flatten(out)
         return embed
 
