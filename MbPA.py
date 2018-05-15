@@ -5,7 +5,7 @@ from ops import conv2d, linear
 class MbPA:
 
     def __init__(self, sess, args):
-        with tf.variable_scope(args.name):
+        with tf.variable_scope(args.model_name):
             self.args = args
             self.learning_rate = args.learning_rate
             self.session = sess

@@ -4,7 +4,7 @@ from memory.memory import Memory
 from ops import conv2d, linear
 import numpy as np
 from tqdm import tqdm
-
+from tensorflow.contrib.data import Dataset
 class MbPA_KNN_Test:
     def __init__(self, sess, args):
         self.args = args
@@ -135,6 +135,12 @@ class MbPA_KNN_Test:
             self.update_training_to_prediction()
             xs_test_embed_ = test_embed[i]
             xs_test_embed_sample, ys_test_sample, _ = self.get_memory_sample(xs_test_embed_)
+
+            # dataset = Dataset.from_tensors({
+            #     "xs_sample": xs_test_embed_sample,
+            #     "ys_sample": ys_test_sample
+            # })
+
             self.session.run(self.optim_eval,
                              feed_dict={
                                  self.x_eval: xs_test_embed_sample,
