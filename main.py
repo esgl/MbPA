@@ -64,13 +64,13 @@ def main(_):
 
 def training_knn(model, mnist, task_permutation, use_memory=False):
     last_performance = []
-    num_example = mnist.train.num_examples
-    perm0 = np.arange(num_example)
-    np.random.shuffle(perm0)
-    mnist_train_images = np.reshape(mnist.train.images[perm0[:10000]], [-1, 28, 28, 1])
-    mnist_train_labels = mnist.train.labels[perm0[:10000]]
-    mnist_train = DataSet(mnist_train_images, mnist_train_labels)
-
+    # num_example = mnist.train.num_examples
+    # perm0 = np.arange(num_example)
+    # np.random.shuffle(perm0)
+    # mnist_train_images = np.reshape(mnist.train.images[perm0[:10000]], [-1, 28, 28, 1])
+    # mnist_train_labels = mnist.train.labels[perm0[:10000]]
+    # mnist_train = DataSet(mnist_train_images, mnist_train_labels)
+    mnist_train = mnist.train
     for task in range(args.num_tasks_to_run):
         logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
         for i in tqdm(range(10000)):
@@ -107,12 +107,14 @@ def training_knn(model, mnist, task_permutation, use_memory=False):
 
 def training(model, mnist, task_permutation, use_memory=False):
     last_performance = []
-    num_example = mnist.train.num_examples
-    perm0 = np.arange(num_example)
-    np.random.shuffle(perm0)
-    mnist_train_images = np.reshape(mnist.train.images[perm0[:10000]], [-1, 28, 28, 1])
-    mnist_train_labels = mnist.train.labels[perm0[:10000]]
-    mnist_train = DataSet(mnist_train_images, mnist_train_labels)
+    # num_example = mnist.train.num_examples
+    # perm0 = np.arange(num_example)
+    # np.random.shuffle(perm0)
+    # mnist_train_images = np.reshape(mnist.train.images[perm0[:10000]], [-1, 28, 28, 1])
+    # mnist_train_labels = mnist.train.labels[perm0[:10000]]
+    # mnist_train = DataSet(mnist_train_images, mnist_train_labels)
+    #
+    mnist_train = mnist.train
     for task in range(args.num_tasks_to_run):
         # print("\nTraining task:", task + 1, "/", args.num_tasks_to_run)
         logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
