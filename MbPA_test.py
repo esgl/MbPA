@@ -136,7 +136,7 @@ class MbPA_KNN_Test:
             xs_test_embed_sample, ys_test_sample, dists = self.get_memory_sample(xs_test_embed_)
 
             sample_length = np.shape(xs_test_embed_sample)[0]
-            for j in range(10):
+            for j in range(100):
                 sample_permutation = np.random.permutation(range(sample_length))
                 if sample_length < self.args.batch_size:
                     batch_size = sample_length
