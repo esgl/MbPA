@@ -24,6 +24,8 @@ class Memory:
 
     def sample_knn_test(self, state, k):
         inds, dists = self.index.get_nns_by_vector(state, k, include_distances=True)
+        self.tm += 0.01
+        self.lru[inds] = self.tm
         return self.states[inds], self.values[inds], dists
 
 
@@ -35,6 +37,8 @@ class Memory:
             inds.append(ind)
             dists.append(dist)
         # inds = np.reshape(np.array(inds), -1)
+        self.tm += 0.01
+        self.lru[inds] = self.tm
         return self.states[inds], self.values[inds], dists
 
     def sample(self, n_samples):
@@ -138,6 +142,7 @@ class Memory:
                     self.curr_ = (self.curr_ + 1) % self.capacity
             self.states[self.curr_] = state
             self.values[self.curr_] = values[i]
+
     @property
     def length(self):
         # assert self.index.get_n_items() == self.curr_capacity
