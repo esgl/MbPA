@@ -1,0 +1,25 @@
+import matplotlib.pyplot as plt
+def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted, knn_memory_adapted, filename):
+    print(filename)
+    print(baseline_mlp)
+    print(baseline_mlp[::-1])
+    print(memoryadaoted)
+    print(memoryadaoted[::-1])
+    print(knn_memory_adapted)
+    print(knn_memory_adapted[::-1])
+
+    tasks = range(1, num_tasks_to_run + 1)
+
+    # fig = plt.figure()
+    plt.plot(tasks, baseline_mlp[::-1])
+    plt.plot(tasks, memoryadaoted[::-1])
+    plt.plot(tasks, knn_memory_adapted[::-1])
+    # plt.plot(tasks, tasks[::-1])
+    plt.legend(["Baseline-MLP", "RMA", "KNN_MEMORY"], loc="lower right")
+    # plt.legend(["Baseline-MLP"], loc="lower right")
+    plt.xlabel("Number of Tasks")
+    plt.ylabel("Accuracy (%)")
+    plt.ylim([1, 100])
+    plt.xticks(tasks)
+    plt.savefig("logs/{}.png".format(filename))
+    plt.show()

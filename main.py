@@ -9,22 +9,7 @@ from tqdm import tqdm
 import logging
 from args import set_args
 
-def plot_result(num_tasks_to_run, baseline_mlp, memoryadaoted, knn_memory_adapted, filename):
-    import matplotlib.pyplot as plt
-    tasks = range(1, num_tasks_to_run + 1)
-    fig = plt.figure()
-    plt.plot(tasks, baseline_mlp[::-1])
-    plt.plot(tasks, memoryadaoted[::-1])
-    plt.plot(tasks, knn_memory_adapted[::-1])
-    plt.legend(["Baseline-MLP", "RMA", "KNN_MEMORY"], loc="lower right")
-    plt.xlabel("Number of Tasks")
-    plt.ylabel("Accuracy (%)")
-    plt.ylim([1, 100])
-    plt.xticks(tasks)
-    plt.show()
-    fig.savefig("logs/{}.png".format(filename))
-
-
+from utils import plot_result
 
 def main(_):
     with tf.Session() as sess:
@@ -73,13 +58,14 @@ def main(_):
         print("Training time elapased: ", time_needed_baseline, "s")
         logger.info("Training time elapased: {}s".format(time_needed_baseline))
         plot_result(args.num_tasks_to_run, performance_baseline, mbpa_performance, mbpa_test_performance,
-                    args.log.split("/")[-1].split(".")[0])
+                    (args.log.split("/")[-1]).split(".")[0])
+
 
 def training_knn(model, mnist, task_permutation, use_memory=False):
     last_performance = []
     for task in range(args.num_tasks_to_run):
         logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
-        for i in tqdm(range(10000)):
+        for i in tqdm(range(313)):
             batch = mnist.train.next_batch(args.batch_size)
             batch = (batch[0][:, task_permutation[task]], batch[1])
             if use_memory:
@@ -100,7 +86,7 @@ def training_knn(model, mnist, task_permutation, use_memory=False):
             test_images = mnist.test.images
 
             test_images = test_images[:, task_permutation[test_task]]
-            acc = model.test(test_images, mnist.test.labels)
+            acc = model.test(test_images[:100], mnist.test.labels[:100])
             acc = acc * 100
             average_acc.append(acc)
             if args.num_tasks_to_run == task + 1:
@@ -115,7 +101,7 @@ def training(model, mnist, task_permutation, use_memory=False):
     for task in range(args.num_tasks_to_run):
         # print("\nTraining task:", task + 1, "/", args.num_tasks_to_run)
         logger.info("\nTraining task:{}/{}".format(task + 1, args.num_tasks_to_run))
-        for i in tqdm(range(10000)):
+        for i in tqdm(range(313)):
             batch = mnist.train.next_batch(args.batch_size)
             batch = (batch[0][:, task_permutation[task]], batch[1])
             if use_memory:
@@ -134,7 +120,7 @@ def training(model, mnist, task_permutation, use_memory=False):
             test_images = mnist.test.images
 
             test_images = test_images[:, task_permutation[test_task]]
-            acc = model.test(test_images, mnist.test.labels)
+            acc = model.test(test_images[:100], mnist.test.labels[:100])
             acc = acc * 100
             average_acc.append(acc)
             if args.num_tasks_to_run == task + 1:
